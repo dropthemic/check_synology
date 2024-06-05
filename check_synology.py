@@ -106,7 +106,7 @@ if mode == 'load':
     if critical and critical < int(math.ceil(float(load1))):
         state = 'CRITICAL'
 
-    print(state + ' - load average: %s, %s, %s' % (load1, load5, load15), '| load1=%sc' % load1, 'load5=%sc' % load5, 'load15=%sc' % load15)
+    print(state + ' - load average: %s, %s, %s' % (load1, load5, load15), '| load1=%s' % load1, 'load5=%s' % load5, 'load15=%s' % load15)
     exitCode()
 
 if mode == 'memory':
@@ -121,7 +121,7 @@ if mode == 'memory':
     if critical and critical > int(memory_percent):
         state = 'CRITICAL'
 
-    print(state + ' - {:0.1f}% '.format(memory_percent) + 'usable ({0:0.1f} MB free and {1:0.1f} MB cached out of {2:0.1f} MB)'.format((memory_unused / 1024), (memory_cached / 1024), (memory_total / 1024)), '|memory_total=%dc' % memory_total, 'memory_unused=%dc' % memory_unused, 'memory_cached=%dc' % memory_cached, 'memory_usable=%dc' % memory_usable, 'memory_percent=%d' % memory_percent + '%')
+    print(state + ' - {:0.1f}% '.format(memory_percent) + 'usable ({0:0.1f} MB free and {1:0.1f} MB cached out of {2:0.1f} MB)'.format((memory_unused / 1024), (memory_cached / 1024), (memory_total / 1024)), '|memory_total=%dKB' % memory_total, 'memory_unused=%dKB' % memory_unused, 'memory_cached=%dKB' % memory_cached, 'memory_usable=%dKB' % memory_usable, 'memory_percent=%d' % memory_percent + '%')
     exitCode()
 
 if mode == 'disk':
@@ -165,7 +165,7 @@ if mode == 'disk':
 
         # 2. Compute textual and perfdata output.
         output += ' - ' + disk_name + ': Status: ' + disk_status + ', Temperature: ' + disk_temp + ' C' + ', Health status: ' + disk_health_status
-        perfdata += 'temperature' + disk_name + '=' + disk_temp + 'c '
+        perfdata += 'temperature' + disk_name + '=' + disk_temp + ' '
 
         # 3. Collect outcome for individual sensor state.
 
@@ -233,7 +233,7 @@ if mode == 'storage':
                 state = 'CRITICAL'
 
             output += ' -  free space: ' + storage_name + ' ' + str(storage_free) + ' GB (' + str(storage_used) + ' GB of ' + str(storage_size) + ' GB used, ' + str(storage_used_percent) + '%)'
-            perfdata += storage_name + '=' + str(storage_used) + 'c '
+            perfdata += storage_name + '=' + str(storage_used) + 'GB '
     print('%s%s %s' % (state, output, perfdata))
     exitCode()
 
@@ -300,5 +300,5 @@ if mode == 'status':
             state = 'CRITICAL'
 
     # 3. Respond with textual and perfdata output and propagate exit code.
-    print(state + ' - Model: %s, S/N: %s, System Temperature: %s C, System Status: %s, System Fan: %s, CPU Fan: %s, Powersupply : %s' % (status_model, status_serial, status_temperature, status_system, status_system_fan, status_cpu_fan, status_power) + ' | system_temp=%sc' % status_temperature)
+    print(state + ' - Model: %s, S/N: %s, System Temperature: %s C, System Status: %s, System Fan: %s, CPU Fan: %s, Powersupply : %s' % (status_model, status_serial, status_temperature, status_system, status_system_fan, status_cpu_fan, status_power) + ' | system_temp=%s' % status_temperature)
     exitCode()
