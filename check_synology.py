@@ -15,7 +15,7 @@ parser.add_argument("hostname", help="the hostname", type=str)
 parser.add_argument("username", help="the snmp user name", type=str)
 parser.add_argument("authkey", help="the auth key", type=str)
 parser.add_argument("privkey", help="the priv key", type=str)
-parser.add_argument("mode", help="the mode", type=str, choices=["load", "memory", "disk", "storage", "update", "status"])
+parser.add_argument("mode", help="the mode", type=str, choices=["load", "memory", "disk", "storage", "update", "status", "raid"])
 parser.add_argument("-w", help="warning value for selected mode", type=int)
 parser.add_argument("-c", help="critical value for selected mode", type=int)
 parser.add_argument("-p", help="the snmp port", type=int, dest="port", default=161)
@@ -301,4 +301,25 @@ if mode == 'status':
 
     # 3. Respond with textual and perfdata output and propagate exit code.
     print(state + ' - Model: %s, S/N: %s, System Temperature: %s C, System Status: %s, System Fan: %s, CPU Fan: %s, Powersupply : %s' % (status_model, status_serial, status_temperature, status_system, status_system_fan, status_cpu_fan, status_power) + ' | system_temp=%sc' % status_temperature)
+    exitCode()
+
+if mode == 'raid':
+    output = ''
+    perfdata = '|'
+    for item in snmpwalk('1.3.6.1.4.1.6574.3.1.1.1'):
+        i = item.oid_index or item.oid.split('.')[-1]
+        storage_name = snmpget('1.3.6.1.4.1.6574.3.1.1.2.' + str(i))
+        raid_status = snmpget('1.3.6.1.4.1.6574.3.1.1.3.' + str(i))
+
+        #Normal(1):The raid functions normally.
+        #Degrade(11):Degrade happens when a tolerable failure of disk(s) occurs.
+        #Crashed(12):Raid has crashed and just uses for read-only operation.
+        #Repairing(2), Migrating(3), Expanding(4), Deleting(5), Creating(6), RaidSyncing(7), RaidParityChecking(8), RaidAssembling(9) and Canceling(10).
+
+        if str(raid_status) in ("3","4","5","6","7","8","9","10"): state = "WARNING"
+        elif str(raid_status) != "1":
+            state = "CRITICAL"
+        output += ' - raid status: [' + storage_name + '] status=' + str(raid_status)
+        perfdata += ' "' + storage_name + '"=' + str(raid_status) + ''
+    print('%s%s %s' % (state, output, perfdata))
     exitCode()
